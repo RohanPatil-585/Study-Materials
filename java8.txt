@@ -1,0 +1,369 @@
+Java 8
+==================
+
+1. Lambda Expression
+2. Functional Interface
+3. Static Methods in interface
+4. Defaults Methods in interface
+5. Method References
+
+
+1) Lambda Expression
+
+
+Lambda Expression is only use for functional interface. 
+Using Lambda Expression we can provide the implementation of function interface.
+
+The basic syntax of a lambda expression is:
+-------------------------------------------
+either
+(parameters) -> expression
+or
+(parameters) -> { statements; }
+or 
+() -> expression
+
+
+
+
+2) Functional Interface
+
+
+
+Functional interface are also called as Single Abstract Method Interface.
+Only one abstract method is allowed in any functional interface.
+
+VALID
+******
+@FunctionalInterface
+public interface MyFirstFunctionalInterface {
+    public void firstWork();
+}
+
+VALID
+*****
+//This is also valid without annotation(@FunctionalInterface).
+public interface MyFirstFunctionalInterface {
+    public void firstWork();
+}
+
+VALID
+*****
+[Another important point to remember is that if an interface declares an abstract method overriding
+ one of the public methods of java.lang.Object, that also does not count toward the interface’s abstract 
+ method count since any implementation of the interface will have an implementation from java.lang.Object 
+ or elsewhere. for example, below is perfectly valid functional interface.]
+ 
+@FunctionalInterface
+public interface MyFirstFunctionalInterface 
+{
+    public void firstWork();
+ 
+    @Override
+    public String toString();                //Overridden from Object class
+ 
+    @Override
+    public boolean equals(Object obj);        //Overridden from Object class
+}
+
+VALID
+*****
+//Only one abstract method is compulsory, you can add number of default methods or number of static methods.
+@FunctionalInterface
+public interface MyFirstFunctionalInterface {
+	
+	public void firstWork();
+
+    default void move(){
+        System.out.println("I am moving");
+    }
+	
+	static void m1(){
+        System.out.println("m1");
+    }
+}
+
+
+
+
+3) Static Methods in interface
+
+
+
+The static method in an interface can be defined in the interface, 
+but these methods cannot be overridden in Implementation Classes. 
+To use a static method, Interface name should be instantiated with it, 
+as it is a part of the Interface only.
+
+variables used inside a static method of an interface have access 
+only to the variables defined inside the interface.
+
+Program 1::
+
+public interface NewInterface {   
+    // static method 
+    static void hello() 
+    { 
+        System.out.println("Hello, New Static Method Here"); 
+    } 
+} 
+
+//Interface static method is call only using interface name. we can not call static method of interface using object.
+//NewInterface.hello();
+
+public class InterfaceDemo implements NewInterface {   
+    public static void main(String[] args) 
+    { 
+        InterfaceDemo interfaceDemo = new InterfaceDemo(); 
+        // Calling the static method of interface 
+        NewInterface.hello(); 
+    }   
+} 
+
+
+Program 2::
+[Static method cannot be override by implementation classes.]
+
+interface PrintDemo {   
+    // Static Method 
+    static void hello() 
+    { 
+        System.out.println("Called from Interface PrintDemo"); 
+    } 
+} 
+  
+public class InterfaceDemo implements PrintDemo { 
+  
+    public static void main(String[] args) 
+    {
+        // Call Interface method as Interface 
+        // name is preceeding with method 
+        PrintDemo.hello(); 
+  
+        // Call Class static method 
+        hello(); 
+    } 
+  
+    // Class Static method is defined 
+    static void hello() 
+    { 
+        System.out.println("Called from Class"); 
+    } 
+}
+
+
+Program 3::
+[In multiple inhertance, the ambiguity error is not occur becuase static method is only call using interface name]
+
+interface PrintDemo1 {   
+    // Static Method 
+    static void hello() 
+    { 
+        System.out.println("Called from Interface PrintDemo"); 
+    } 
+} 
+interface PrintDemo2 {   
+    // Static Method 
+    static void hello() 
+    { 
+        System.out.println("Called from Interface PrintDemo"); 
+    } 
+}   
+public class InterfaceDemo implements PrintDemo1, PrintDemo2 { 
+  
+    public static void main(String[] args) 
+    {        
+        PrintDemo1.hello(); 
+		PrintDemo2.hello();         
+    }   
+}
+
+
+
+
+4) Defaults Methods in interface
+
+
+
+default methods in java 8 are simply default. If you do not override them, they are 
+the methods which will be invoked by caller classes. They are defined in interfaces.
+
+Program 1::
+
+public interface Moveable {
+    default void move(){
+        System.out.println("I am moving");
+    }
+}
+public class Animal implements Moveable{
+    public static void main(String[] args){
+        Animal tiger = new Animal();
+        tiger.move();
+    }
+}
+ 
+Output: I am moving
+
+Program 2:: [If you override the default method]
+
+public interface Moveable {
+    default void move(){
+        System.out.println("I am moving");
+    }
+}
+public class Animal implements Moveable{
+     
+    public void move(){
+        System.out.println("I am running");
+    }
+     
+    public static void main(String[] args){
+        Animal tiger = new Animal();
+        tiger.move();
+    }
+}
+ 
+Output: I am running
+
+Program 3::
+
+In java 8, can an interface default method access instance variables?
+[No. Because variables used inside a default method of an interface have access only to the 
+variables defined inside the interface.]
+
+If you want to provide access of instance variables then follow this :
+to declare an abstract getter method in the interface and use it to read the property of the subclass
+
+public interface Foo{
+    default int getBazModified(){
+       return this.getBaz() * 2; 
+    }
+
+    int getBaz();
+}
+public class Bar implements Foo {
+   int baz;
+   public int getBaz() {return this.baz;}
+}
+
+
+Program 4::
+
+Ambiguity error in default method
+----------------------------------
+Solution :::: Override the default method and inside the method call interface default method.
+
+interface TestInterface1 
+{ 
+    // default method 
+    default void show() 
+    { 
+        System.out.println("Default TestInterface1"); 
+    } 
+} 
+interface TestInterface2 
+{ 
+    // Default method 
+    default void show() 
+    { 
+        System.out.println("Default TestInterface2"); 
+    } 
+} 
+class TestClass implements TestInterface1, TestInterface2 
+{ 
+    // Overriding default show method 
+    public void show() 
+    { 
+        // use super keyword to call the show 
+        // method of TestInterface1 interface 
+        TestInterface1.super.show(); 
+  
+        // use super keyword to call the show 
+        // method of TestInterface2 interface 
+        TestInterface2.super.show(); 
+    } 
+  
+    public static void main(String args[]) 
+    { 
+        TestClass d = new TestClass(); 
+        d.show(); 
+    } 
+} 
+
+Output :
+Default TestInterface1
+Default TestInterface2
+
+
+
+
+5) Method References
+
+
+
+Types of method reference
+***************************
+Reference to static method - Class::staticMethodName
+Reference to instance method from instance - ClassInstance::instanceMethodName
+Reference to instance method from class type - Class::instanceMethodName
+Reference to constructor - Class::new
+
+
+static method reference
+-----------------------
+
+class MethodReferenceExample {
+  public static int compareByAge(Employee first, Employee second) {
+    return Integer.compare(first.age, second.age);
+  }
+}
+
+Comparator compareByAge = MethodReferenceExample::compareByAge;
+
+
+Instance Method Reference of a Particular Object
+-------------------------------------------------
+
+static class MyComparator {
+  public int compareByFirstName(User first, User second) {
+    return first.getFirstName().compareTo(second.getFirstName());
+  }
+  public int compareByLastName(User first, User second) {
+    return first.getLastName().compareTo(second.getLastName());
+}
+
+private static void instanceMethodReference() {
+  System.err.println("Instance method reference");
+  List<User> users = Arrays.asList(new User("Gaurav", "Mazra"),
+      new User("Arnav", "Singh"), new User("Daniel", "Verma"));
+  MyComparator comparator = new MyComparator();
+  System.out.println(users);
+  Collections.sort(users, comparator::compareByFirstName);
+  System.out.println(users);
+}
+
+instance method from class type – Class::instanceMethodName
+-----------------------------------------------------------
+
+static class MyComparator {
+  public int compareByFirstName(User first, User second) {
+    return first.getFirstName().compareTo(second.getFirstName());
+  }
+  public int compareByLastName(User first, User second) {
+    return first.getLastName().compareTo(second.getLastName());
+}
+
+private static void instanceMethodReference() {
+  System.err.println("Instance method reference");
+  List<User> users = Arrays.asList(new User("Gaurav", "Mazra"),
+      new User("Arnav", "Singh"), new User("Daniel", "Verma"));
+  
+  Collections.sort(users, MyComparator::compareByFirstName);  
+}
+
+constructor - Class::new
+------------------------
+Function<String, Job> jobCreator = Job::new;
+//the above function is equivalent to
+Function<String, Job> jobCreator2 = (jobName) -> return new Job(jobName);
+
