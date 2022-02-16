@@ -1,0 +1,22 @@
+
+#########################KAFKA##########################################
+
+https://github.com/dilipsundarraj1/kafka-for-developers-using-spring-boot
+
+cd C:\kafka\bin\windows
+
+1.TO run the zookeeper
+-zookeeper-server-start.bat C:\kafka\kafka_2.13-2.6.1\config\zookeeper.properties
+
+2.to run the kafka broker
+-kafka-server-start.bat C:\kafka\kafka_2.13-2.6.1\config\server.properties
+
+3.to start the kafka consumer
+kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic event-log-topic
+
+kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic new-cards-in-topic
+
+
+
+
+
